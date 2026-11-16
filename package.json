@@ -1,0 +1,10 @@
+{
+  "name": "splitguard",
+  "private": true,
+  "type": "module",
+  "license": "MIT OR Apache-2.0",
+  "scripts": {
+    "build": "node tools/build-web.mjs",
+    "test": "node tests/parity.mjs && node tests/domain.mjs && node tests/browser-smoke.mjs"
+  }
+}

@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <title>splitguard - a row can carry the answer</title>
+    <meta
+      name="description"
+      content="Java-first purged cross-validation atlas. Inspect invented label intervals, exact overlap removal and a post-test embargo. No trained model or performance claim."
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="module" src="./src/app.js"></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div class="brand">splitguard <span>/ 22</span></div>
+        <div class="eyebrow">LABEL INTERVALS / SPLIT MEMBERSHIP</div>
+      </header>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">60 INVENTED EVENTS / NO FITTED MODEL</p>
+          <h1>A row can carry<br />the answer.</h1>
+        </div>
+        <p class="intro">
+          Separate the rows. Then check the information they share. Follow one
+          label through a test fold, an overlap purge and a post-test embargo.
+        </p>
+      </section>
+      <form id="controls" novalidate>
+        <div class="fields">
+          <label
+            >Contiguous folds<input
+              id="folds"
+              type="number"
+              min="3"
+              max="8"
+              step="1"
+              value="5"
+              required /></label
+          ><label
+            >Max label horizon / ticks<input
+              id="horizon"
+              type="number"
+              min="1"
+              max="24"
+              step="1"
+              value="12"
+              required /></label
+          ><label
+            >Post-test embargo / ticks<input
+              id="embargo"
+              type="number"
+              min="0"
+              max="16"
+              step="1"
+              value="4"
+              required /></label
+          ><label
+            >Synthetic seed<input
+              id="seed"
+              type="number"
+              min="1"
+              max="9999"
+              step="1"
+              value="17"
+              required
+          /></label>
+        </div>
+        <button type="submit">
+          Rebuild the splits <span aria-hidden="true">↗</span>
+        </button>
+      </form>
+      <p id="status" role="status" aria-live="polite"></p>
+      <p class="notice">
+        Invented prediction and label-end times, not trading dates or market
+        data. This is a split audit, not a model, performance estimate or
+        forecast. Purged k-fold can retain future training rows. It is not
+        walk-forward validation.
+      </p>
+      <div id="metrics" class="metrics"></div>
+      <section>
+        <div class="sectionhead">
+          <h2>01 / Read the partition</h2>
+          <p>Each event is a test row exactly once</p>
+        </div>
+        <p class="measure">
+          K-fold candidates are all non-test rows. First purge any label that
+          overlaps a test label. Then exclude remaining starts in the embargo
+          window. Removed rows are not reassigned to another fold.
+        </p>
+        <div class="legend">
+          <span class="test">X Test</span><span class="purged">P Purged</span
+          ><span class="embargo">E Embargo</span
+          ><span class="train">T Retained train</span>
+        </div>
+        <p class="small">
+          The matrix scrolls horizontally. Use the fold and event controls below
+          for the full text audit.
+        </p>
+        <div
+          class="matrixscroll"
+          tabindex="0"
+          role="region"
+          aria-label="Fold membership matrix, horizontally scrollable"
+        >
+          <svg
+            id="matrix"
+            viewBox="0 0 1000 340"
+            role="img"
+            aria-label="Fold membership by event. Full membership values are in the selected fold ledger."
+          ></svg>
+        </div>
+      </section>
+      <section>
+        <div class="sectionhead">
+          <h2>02 / Open one interval</h2>
+          <p>Half-open labels [start, end): touching is not overlap</p>
+        </div>
+        <div class="inspectors">
+          <label
+            >Inspect fold / 1 to K<input
+              id="fold"
+              type="number"
+              min="1"
+              max="5"
+              step="1"
+              value="3" /></label
+          ><label
+            >Inspect event / 1 to 60<input
+              id="event"
+              type="number"
+              min="1"
+              max="60"
+              step="1"
+              value="37"
+          /></label>
+        </div>
+        <p id="selection" class="selection" role="status"></p>
+        <div class="timelinebox">
+          <svg
+            id="timeline"
+            viewBox="0 0 1000 370"
+            role="img"
+            aria-label="Test union, selected label and embargo window on the same time axis"
+          ></svg>
+        </div>
+        <div class="two">
+          <div>
+            <h3>The interval audit</h3>
+            <div id="audit" class="audit"></div>
+          </div>
+          <div>
+            <h3>Three tests, in order</h3>
+            <ol class="phases">
+              <li>
+                <b>Test membership.</b> A contiguous block of event indices,
+                balanced to differ in size by at most one. Starts are strictly
+                increasing; event lengths vary.
+              </li>
+              <li>
+                <b>Label overlap.</b> For every candidate i and test j, require
+                start[i] &lt; end[j] and start[j] &lt; end[i]. Any positive
+                intersection purges i. End-to-start contact alone is allowed.
+              </li>
+              <li>
+                <b>Post-test embargo.</b> B is the latest label end among test
+                events. Exclude a remaining candidate when its start is in [B, B
+                + embargo). This is a duration in invented ticks, not a row
+                count.
+              </li>
+            </ol>
+            <p class="small">
+              Classification precedence: TEST, PURGED, EMBARGO, TRAIN. Overlap
+              counts and durations are computed for non-test candidates only.
+              Retained means it passes this contract, not that it is independent
+              or safe for deployment.
+            </p>
+          </div>
+        </div>
+      </section>
+      <section>
+        <div class="sectionhead">
+          <h2>03 / Count what remains</h2>
+          <p>No predictions, returns or score to optimize</p>
+        </div>
+        <div
+          class="tablescroll"
+          tabindex="0"
+          role="region"
+          aria-label="All fold counts, horizontally scrollable"
+        >
+          <table id="foldtable">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="small">
+          Past and future refer to event positions before and after the held-out
+          block. Later training is deliberate in k-fold resampling. For a
+          past-only deployment question, use an appropriate chronological design
+          instead. These folds reuse events and are not independent trials.
+        </p>
+      </section>
+      <section>
+        <div class="sectionhead">
+          <h2>04 / Keep the membership trail</h2>
+          <p>Selected fold / all 60 events</p>
+        </div>
+        <p class="small">
+          The ledger scrolls vertically and horizontally. First conflict is a
+          one-based test event; dash means none. Pair-ticks sum each
+          candidate/test intersection separately: shared ticks can be counted
+          more than once, so this is not a unique exposure duration.
+        </p>
+        <div
+          class="tablescroll ledger"
+          tabindex="0"
+          role="region"
+          aria-label="Selected fold event ledger, vertically and horizontally scrollable"
+        >
+          <table id="ledger">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="methods">
+        <div>
+          <h3>Intervals, not row gaps.</h3>
+          <p>
+            Two labels can share future outcomes even when their row indices
+            differ. This engine merges the exact test-label union and audits
+            every overlap pair. It does not replace variable horizons with a
+            fixed row gap or a single convex-hull purge.
+          </p>
+          <p>
+            Seed changes starts and label lengths. Horizon changes label
+            lengths, never prediction times. The seeded generator is a fixture,
+            not a market process. All time arithmetic and counts are exact
+            integers.
+          </p>
+        </div>
+        <div>
+          <h3>An explicit embargo.</h3>
+          <p>
+            Implementations differ on embargo anchors, row counts versus
+            durations and endpoint inclusion. Here it starts at the latest test
+            label end and excludes starts below B + embargo, with zero duration
+            excluding nothing. No universal embargo length is implied.
+          </p>
+          <p>
+            An empty training set is a valid warning, not a reason to silently
+            weaken the split. No fallback, model fit or accuracy score is
+            produced.
+          </p>
+        </div>
+        <div>
+          <h3>One leakage channel.</h3>
+          <p>
+            Purging does not fix future-aware features, globally fitted scalers
+            or selectors, revised data, duplicate entities, repeated tuning on a
+            holdout or regime shifts. Embargo does not guarantee independence.
+          </p>
+          <p>
+            Fit learned transformations within each training split. These
+            invented labels contain no outcomes or features, so no empirical
+            leakage bias, generalization, investment edge or performance
+            improvement is measured. Native Safari/Android untested.
+          </p>
+        </div>
+      </section>
+      <footer>
+        <p>
+          Background:
+          <a
+            href="https://eslazarev.github.io/purged-cross-validation/api/primitives/"
+            rel="noreferrer"
+            >interval conventions</a
+          >
+          ·
+          <a
+            href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html"
+            rel="noreferrer"
+            >chronological splits and row gaps</a
+          >
+          ·
+          <a
+            href="https://python.financial/concepts/purged-cross-validation/"
+            rel="noreferrer"
+            >what purging cannot fix</a
+          >
+        </p>
+        <p>splitguard / Java engine + local browser mirror</p>
+        <p>
+          MIT OR Apache-2.0 · No accounts, uploads, storage or runtime network
+          calls
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>
